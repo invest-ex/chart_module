@@ -3,7 +3,7 @@ const readLine = require('readline');
 const { Writable } = require('stream');
 const cassandra = require('cassandra-driver');
 
-const readStream = fs.createReadStream('./files/dataStream.txt');
+const readStream = fs.createReadStream('./files/dataSmall.txt');
 
 const lineReader = readLine.createInterface({
 	input: readStream,
@@ -77,7 +77,6 @@ let createQuery = (buffer) => {
 }
 
 let writeFunc = (data, encoding, cb) => {
-  console.log(createQuery(data));
 	client.execute(createQuery(data), cb);
 }
 
@@ -98,7 +97,6 @@ const dbWrite = new DbWriteManager(writeFunc, restartLineReader, 1);
 let bufferLines = [];
 
 lineReader.on('line', function (line) {
-  console.log('asdf');
 	if(!dbWrite.write(line)) {
 		lineReader.pause();
 		bufferLines.push(line);
