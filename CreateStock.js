@@ -7,7 +7,7 @@ let bigArr = new Array(100).fill(3);
 let obj;
 
 function replaceAll(target, search, replacement) {
-  return target.replace(new RegExp(search, 'g'), replacement);
+  return target.replace(new RegExp(search, 'g'), replcaement);
 }
 function randInt(lo, hi) {
   return Math.floor(Math.random() * (hi - lo) + lo);
@@ -23,10 +23,10 @@ function stockArr(num = 100) {
 
 class StockCode {
   constructor() {
-    this.stock = 0;
-    this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    this.stock = 0
+;    this.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
   }
-  makeCode() {
+  makeTicker() {
     this.stock++;
     let val = this.stock;
     let a = new Array(5).fill('A');
@@ -59,7 +59,7 @@ function makeStock() {
     year: stockArr(100),
     fiveYear:stockArr(100)
   }
-  obj.stockId = codeMaker.makeCode(),
+  obj.stockId = codeMaker.makeTicker(),
   obj.averageStock = faker.commerce.price();
   obj.changePercent = randInt(0, 40)/40;
   return obj;
