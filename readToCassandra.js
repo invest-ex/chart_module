@@ -14,7 +14,7 @@ const lineReader = readLine.createInterface({
 
 const client = new cassandra.Client({ 
   contactPoints: ['localhost'], 
-  keyspace: 'cycling',
+  keyspace: 'investex',
   localDataCenter: 'datacenter1' 
 });
 
@@ -132,4 +132,4 @@ setInterval(()=>{
     process.exit();
   } 
   lastLineN = lineN;
-}, 1000);
+}, 5000);
