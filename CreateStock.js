@@ -7,7 +7,7 @@ let bigArr = new Array(100).fill(3);
 let obj;
 
 function replaceAll(target, search, replacement) {
-  return target.replace(new RegExp(search, 'g'), replcaement);
+  return target.replace(new RegExp(search, 'g'), replacement);
 }
 function randInt(lo, hi) {
   return Math.floor(Math.random() * (hi - lo) + lo);
