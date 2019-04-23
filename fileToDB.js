@@ -41,13 +41,14 @@ class DbWriteManager {
 }
 
 class FileToDBManager {
-  constructor(writeFunc, filePath, streams = 32) {
+  constructor(writeFunc, filePath, streams = 32, dBName) {
 
     this.restartLineReader = this.restartLineReader.bind(this);
     this.onReaderLine = this.onReaderLine.bind(this);
     this.interValPrint = this.interValPrint.bind(this);
     
     this.streams = streams;
+    this.dBName = dBName;
     this.dbWrite = new DbWriteManager(writeFunc, this.restartLineReader, streams);
     this.lineReader = readLine.createInterface({
       input: fs.createReadStream(filePath),
@@ -57,7 +58,7 @@ class FileToDBManager {
     this.bufferLines = [];
     this.numLines = 0;
     this.tick = 0;
-    console.time(`Cassandra write ${this.streams} streams`);
+    console.time(`${this.dBName} write ${this.streams} streams`);
     setInterval(this.interValPrint, 1000);
 
   }
@@ -84,7 +85,7 @@ class FileToDBManager {
   interValPrint() {
     console.log(this.numLines, '/', ++this.tick);
     if (this.lastNumLines === this.numLines) {
-      console.timeEnd(`Cassandra write ${this.streams} streams`);
+      console.timeEnd(`${this.dBName} write ${this.streams} streams`);
       process.exit();
     } 
     this.lastNumLines = this.numLines;

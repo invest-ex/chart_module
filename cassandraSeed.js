@@ -50,5 +50,5 @@ let writeFunc = (data, encoding, cb) => {
 	client.execute(createQuery(data), cb);
 }
 
-var a = new FileToDBManager(writeFunc, './files/dataSmall.txt', 32);
+var a = new FileToDBManager(writeFunc, './files/dataSmall.txt', 32, 'Cassandra');
 
