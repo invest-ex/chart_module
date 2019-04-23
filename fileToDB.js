@@ -1,13 +1,6 @@
 const fs = require('fs');
 const readLine = require('readline');
 const { Writable } = require('stream');
-const cassandra = require('cassandra-driver');
-
-let streams = 32;
-
-const readStream = fs.createReadStream('./files/dataSmall.txt');
-
-
 
 class DbWriteManager {
 	constructor(writeFunc, restartFunc, numStreams = 4) {
@@ -97,6 +90,5 @@ class FileToDBManager {
     this.lastNumLines = this.numLines;
   }
 }
-
 
 module.exports = FileToDBManager;
