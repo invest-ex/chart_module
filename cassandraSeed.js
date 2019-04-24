@@ -39,7 +39,6 @@ let createQuery = (buffer) => {
 }
 
 
-
 const client = new cassandra.Client({ 
   contactPoints: ['localhost'], 
   keyspace: 'cycling',
@@ -50,5 +49,5 @@ let writeFunc = (data, encoding, cb) => {
 	client.execute(createQuery(data), cb);
 }
 
-var a = new FileToDBManager(writeFunc, './files/dataSmall.txt', 32, 'Cassandra');
+var a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
 

@@ -14,7 +14,8 @@ function createQuery(buffer) {
   return createBactchedQuery([buffer]);
 }
 
-function createBactchedQuery(bufferArr) {
+function createBactchedQuery(buffers) {
+  let bufferArr = JSON.parse(buffers);
   let a = `
     INSERT INTO stocks (
       stockid,
@@ -34,7 +35,6 @@ function createBactchedQuery(bufferArr) {
       ${bufferArr.map((buffer) => makeValues(buffer))}
     ;
   `
-  console.log(a);
   return a;
 }
 
@@ -60,7 +60,7 @@ function makeValues(buffer) {
 }
 
 function writeFunc(data, encoding, cb) {
-	client.query(createQuery(data), cb);
+	client.query(createBactchedQuery(data), cb);
 }
 
 
@@ -86,7 +86,8 @@ client.query(`
 `);
 console.log('made db');
 let seed = 1;
-let file = './files/dataSmall.txt';
+let file = './files/data.txt';
 let name = 'Postgres';
+let batch = 200;
 
-var a = new FileToDBManager(writeFunc, file, seed, name);
+var a = new FileToDBManager(writeFunc, file, seed, name, batch);

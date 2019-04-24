@@ -2,7 +2,7 @@ const fs = require('fs');
 const readLine = require('readline');
 const { Writable } = require('stream');
 
-class DbWriteManager {
+class DBStreamManager {
 	constructor(writeFunc, restartFunc, numStreams = 4) {
 		this.writeFunc = writeFunc;
 		this.restartFunc = restartFunc;
@@ -41,7 +41,7 @@ class DbWriteManager {
 }
 
 class FileToDBManager {
-  constructor(writeFunc, filePath, streams = 32, dBName) {
+  constructor(writeFunc, filePath, streams = 32, dBName, batchedQueries = 0) {
 
     this.restartLineReader = this.restartLineReader.bind(this);
     this.onReaderLine = this.onReaderLine.bind(this);
@@ -49,7 +49,10 @@ class FileToDBManager {
     
     this.streams = streams;
     this.dBName = dBName;
-    this.dbWrite = new DbWriteManager(writeFunc, this.restartLineReader, streams);
+
+    this.batchedQueries = batchedQueries;
+    this.batchBuffer = [];
+    this.dbWrite = new DBStreamManager(writeFunc, this.restartLineReader, streams);
     this.lineReader = readLine.createInterface({
       input: fs.createReadStream(filePath),
       console: false
@@ -58,7 +61,7 @@ class FileToDBManager {
     this.bufferLines = [];
     this.numLines = 0;
     this.tick = 0;
-    console.time(`${this.dBName} write ${this.streams} streams`);
+    console.time(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
     setInterval(this.interValPrint, 1000);
 
   }
@@ -66,9 +69,16 @@ class FileToDBManager {
   restartLineReader() {
     while (this.bufferLines.length) {
       let line = this.bufferLines.pop();
-      if (!this.dbWrite.write(line)) {
-        this.bufferLines.push(line);
-        return;
+      if (this.batchedQueries) {
+        if (!this.dbWrite.write(JSON.stringify(line))) {
+          this.bufferLines.push(line);
+          return;
+        }
+      } else {
+        if (!this.dbWrite.write(line)) {
+          this.bufferLines.push(line);
+          return;
+        }
       }
     }
     this.lineReader.resume();
@@ -76,16 +86,27 @@ class FileToDBManager {
 
   onReaderLine(line) {
     this.numLines ++;
-    if(!this.dbWrite.write(line)) {
-      this.lineReader.pause();
-      this.bufferLines.push(line);
+    if (this.batchedQueries) {
+      this.batchBuffer.push(line.toString());
+      if (this.batchBuffer.length >= this.batchedQueries) {
+        if(!this.dbWrite.write(JSON.stringify(this.batchBuffer))) {
+          this.lineReader.pause();
+          this.bufferLines.push(this.batchBuffer);
+        }
+        this.batchBuffer = [];
+      }
+    } else {
+      if(!this.dbWrite.write(line)) {
+        this.lineReader.pause();
+        this.bufferLines.push(line);
+      }
     }
   }
 
   interValPrint() {
     console.log(this.numLines, '/', ++this.tick);
     if (this.lastNumLines === this.numLines) {
-      console.timeEnd(`${this.dBName} write ${this.streams} streams`);
+      console.timeEnd(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
       process.exit();
     } 
     this.lastNumLines = this.numLines;
