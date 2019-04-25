@@ -8,7 +8,7 @@ import css from './assets/main.css';
 const AppRouter = () => (
   <Router>
     <Switch>
-      <Route path='/:stockId' component={App} />
+      <Route path='/stocks/:stockId' component={App} />
       <Route path='/' component={App} />
     </Switch>
   </Router>

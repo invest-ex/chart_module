@@ -17,13 +17,13 @@ app.listen(port, () => {
   console.log(`Server is now listening on port: ${port}`)
 })
 
-app.get('/api/:stockId', (req, res) => {
-  console.log('Got a request searching for', req.params.stockId);
-  Stocks.find({stockId: req.params.stockId}, (err, data) => {
+app.get('/api/chart/:stockId', (req, res) => {
+  console.log('Got a request searching for', req.params.stockId.toUpperCase());
+  Stocks.find({stockId: req.params.stockId.toUpperCase()}, (err, data) => {
     if (err) {
       console.log(err.message);
     } else if (!data.length) {
-      Stocks.find({id: req.params.stockId}, (err, data) => {
+      Stocks.find({id: req.params.stockId.toUpperCase()}, (err, data) => {
         if (err) {
           console.log(err.message);
         } else if (!data.length) {
@@ -39,8 +39,9 @@ app.get('/api/:stockId', (req, res) => {
       res.send(data);
     }
   }) 
+
 })
 
-app.get('/:stockId', (req, res) => {
+app.get('/stocks/:stockId', (req, res) => {
   res.sendFile(path.join(__dirname, '/../public/dist/index.html'));
 })
