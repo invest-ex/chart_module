@@ -5,7 +5,6 @@ const client = new Client({
 	user:'user1',
 	password:'asdf',
 	database:'mydb1'
-
 });
 
 client.connect();
