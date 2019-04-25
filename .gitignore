@@ -27,3 +27,5 @@ build/
 # Examples of code from Hack Reactor
 example/
 
+**/files/*
+

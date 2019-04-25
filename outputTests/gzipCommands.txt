@@ -1,0 +1,3 @@
+node file.js | gzip -c > data.gz
+node file.js > data.txt
+gunzip -c data.gz | node importPG.js
