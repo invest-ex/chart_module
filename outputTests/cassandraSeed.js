@@ -4,8 +4,8 @@ const FileToDBManager = require('./fileToDB.js');
 let createQuery = (buffer) => {
 	let obj = JSON.parse(buffer.toString());
 	let {stockInfo, stockData} = obj;
-	query = `
-		INSERT INTO stocksOnePrimary (
+	let query = `
+		INSERT INTO stocks (
 			StockId, 
         	AverageStock, 
         	ChangePercent,
@@ -46,11 +46,11 @@ const client = new cassandra.Client({
 });
 
 client.execute(`
-    DROP TABLE IF EXISTS stocksOnePrimary;
+    DROP TABLE IF EXISTS stocks;
 `);
 
 client.execute(`
-    CREATE TABLE stocksOnePrimary ( 
+    CREATE TABLE stocks ( 
         stockid text,
         averagestock float,
         changepercent float,
@@ -67,7 +67,7 @@ client.execute(`
         PRIMARY KEY (stockid, companyname)
     );
 `, () => {
-    var a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
+    let a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
 });
 
 let writeFunc = (data, encoding, cb) => {

@@ -106,14 +106,14 @@ Promise.all(threads)
 	.then(() => console.timeEnd(`Cassandra ${times} requests, ${cThreads} promise chains`))
 	.then(() => {
 		console.time();
-		threads = new Array(pThreads).fill(0).map(() => execP());
-		console.time(`Postgress ${times} requests, ${pThreads} promise chains`);
-		for (var i = 0; i < times; i += threads.length) {
-			threads = threads.map((val) => val.then(execP));
-		}
-		return Promise.all(threads);
+		// threads = new Array(pThreads).fill(0).map(() => execP());
+		// console.time(`Postgress ${times} requests, ${pThreads} promise chains`);
+		// for (var i = 0; i < times; i += threads.length) {
+		// 	threads = threads.map((val) => val.then(execP));
+		// }
+		// return Promise.all(threads);
 	})
-	.then(() => console.timeEnd(`Postgress ${times} requests, ${pThreads} promise chains`))
+	// .then(() => console.timeEnd(`Postgress ${times} requests, ${pThreads} promise chains`))
 	.then(() => process.exit());
 
 

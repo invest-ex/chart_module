@@ -13,10 +13,6 @@ function randInt(lo, hi) {
   return Math.floor(Math.random() * (hi - lo) + lo);
 }
 
-function randomChocie(arr) {
-  return arr[randInt(0, arr.length)];
-}
-
 function stockArr(num = 100) {
   return new Array(num).fill(0).map(() => faker.commerce.price());
 }
