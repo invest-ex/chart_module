@@ -22,7 +22,10 @@ coverage
 
 # Compiled Dirs (http://nodejs.org/api/addons.html)
 build/
+**/bundle.js
 
 # Examples of code from Hack Reactor
 example/
+
+**/files/*
 
