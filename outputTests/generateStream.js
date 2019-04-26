@@ -1,11 +1,11 @@
 const makeStock = require('./CreateStock.js');
 var fs = require('fs');
-var stream = fs.createWriteStream('./files/dataSmall.txt');
+var stream = fs.createWriteStream('./files/data.txt');
 
 
 
 let i = 0;
-let limit = 3;
+let limit = 100000;
 console.time(`Stream write time: ${limit}`);
 
 function loadData() {
