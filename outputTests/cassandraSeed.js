@@ -33,7 +33,7 @@ let createQuery = (buffer) => {
         	[${stockData.threeMonth}],
         	[${stockData.year}],
         	[${stockData.fiveYear}]
-		);
+		) IF NOT EXISTS;
 	`;
 	return query;
 }
@@ -42,15 +42,13 @@ let createQuery = (buffer) => {
 const client = new cassandra.Client({ 
   contactPoints: ['localhost'], 
   keyspace: 'investex',
-  localDataCenter: 'datacenter1' 
+  localDataCenter: 'datacenter1', 
+  consistencyLevel: 'ONE'
 });
 
-client.execute(`
-    DROP TABLE IF EXISTS stocks;
-`);
 
 client.execute(`
-    CREATE TABLE stocks ( 
+    CREATE TABLE stocks IF NOT EXISTS ( 
         stockid text,
         averagestock float,
         changepercent float,
@@ -71,6 +69,6 @@ client.execute(`
 });
 
 let writeFunc = (data, encoding, cb) => {
-	client.execute(createQuery(data), cb);
+	client.execute(createQuery(data), {}, { consistency: cassandra.types.consistencies.one }, cb);
 }
 

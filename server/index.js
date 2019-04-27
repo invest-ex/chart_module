@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
+const relic = require('newrelic');
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Stocks = require('../database/StockChart.js');
+const getTicker = require('../database/CassDB.js');
 
 const app = express();
 const port = 4000;
@@ -18,27 +20,28 @@ app.listen(port, () => {
 })
 
 app.get('/api/chart/:stockId', (req, res) => {
+  getTicker(req.params.stockId+ 'A').then((val) => res.end(JSON.stringify(val)));
   console.log('Got a request searching for', req.params.stockId.toUpperCase());
-  Stocks.find({stockId: req.params.stockId.toUpperCase()}, (err, data) => {
-    if (err) {
-      console.log(err.message);
-    } else if (!data.length) {
-      Stocks.find({id: req.params.stockId.toUpperCase()}, (err, data) => {
-        if (err) {
-          console.log(err.message);
-        } else if (!data.length) {
-          console.log('Data not found');
-          res.sendStatus(404);
-        } else {
-          console.log(`Sending ${req.params.stockId} to client`);
-          res.send(data);
-        }
-      }) 
-    } else {
-      console.log(`Sending ${req.params.stockId} to client`);
-      res.send(data);
-    }
-  }) 
+  // Stocks.find({stockId: req.params.stockId.toUpperCase()}, (err, data) => {
+  //   if (err) {
+  //     console.log(err.message);
+  //   } else if (!data.length) {
+  //     Stocks.find({id: req.params.stockId.toUpperCase()}, (err, data) => {
+  //       if (err) {
+  //         console.log(err.message);
+  //       } else if (!data.length) {
+  //         console.log('Data not found');
+  //         res.sendStatus(404);
+  //       } else {
+  //         console.log(`Sending ${req.params.stockId} to client`);
+  //         res.send(data);
+  //       }
+  //     }) 
+  //   } else {
+  //     console.log(`Sending ${req.params.stockId} to client`);
+  //     res.send(data);
+  //   }
+  // }) 
 
 })
 
