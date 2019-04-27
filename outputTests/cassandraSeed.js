@@ -46,7 +46,6 @@ const client = new cassandra.Client({
   consistencyLevel: 'ONE'
 });
 
-
 client.execute(`
     CREATE TABLE stocks IF NOT EXISTS ( 
         stockid text,
@@ -65,10 +64,12 @@ client.execute(`
         PRIMARY KEY (stockid, companyname)
     );
 `, () => {
-    let a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
+    let a = new FileToDBManager(writeFunc, './files/data.txt', 1, 'Cassandra');
 });
 
 let writeFunc = (data, encoding, cb) => {
-	client.execute(createQuery(data), {}, { consistency: cassandra.types.consistencies.one }, cb);
+    
+	client.execute(createQuery(data), (err) => {err&&console.log('error is' + err); cb()});
+
 }
 

@@ -22,7 +22,7 @@ function genRandTicker() {
 	letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
 		"I", "J", "K", "L", "M", "N", "O", "P", "Q", 
 		"R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-	let val = Math.floor(Math.random()*1000000);
+	let val = Math.floor(Math.random()*1000);
 	let a = new Array(5).fill(0);
 	return a.map(() => {
       letter = this.letters[val % 26];
@@ -72,7 +72,7 @@ class RealisticQueryMaker {
 		letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
 			"I", "J", "K", "L", "M", "N", "O", "P", "Q", 
 			"R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-		let val = Math.floor(Math.random()*1000000);
+		let val = Math.floor(Math.random()*1000);
 		let a = new Array(5).fill(0);
 		return a.map(() => {
 	      letter = this.letters[val % 26];
@@ -92,20 +92,23 @@ function execP() {
 	return clientP.query(queryMaker.makeQuery());
 }
 
-let times = 10000;
-let cThreads = 30;
+let times = 10;
+let cThreads = 10;
 let pThreads = 1;
 let threads = new Array(cThreads).fill(0).map(() => execC());
 let promise = execC();
 console.time(`Cassandra ${times} requests, ${cThreads} promise chains`);
-for (var i = 0; i < times; i += threads.length) {
+for (let i = 0; i < times; i += threads.length) {
   promise = promise.then(execC);
-	threads = threads.map((val) => val.then(execC));
+	threads = threads.map((val) => val.then((val) => {console.log(val); console.log(i); execC()}));
 }
-Promise.all(threads)
+threads[0].catch((e) => console.log(e));
+threads[0]
+	.then(() => console.log('--------------'))
+
+// Promise.all(threads)
 	.then(() => console.timeEnd(`Cassandra ${times} requests, ${cThreads} promise chains`))
 	.then(() => {
-		console.time();
 		// threads = new Array(pThreads).fill(0).map(() => execP());
 		// console.time(`Postgress ${times} requests, ${pThreads} promise chains`);
 		// for (var i = 0; i < times; i += threads.length) {
