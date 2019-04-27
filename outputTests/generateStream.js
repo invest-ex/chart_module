@@ -5,7 +5,7 @@ var stream = fs.createWriteStream('./files/data.txt');
 
 
 let i = 0;
-let limit = 100000;
+let limit = 1000000;
 console.time(`Stream write time: ${limit}`);
 
 function loadData() {

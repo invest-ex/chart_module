@@ -61,8 +61,9 @@ class FileToDBManager {
     this.bufferLines = [];
     this.numLines = 0;
     this.tick = 0;
+    this.misses = 0;
     console.time(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
-    setInterval(this.interValPrint, 1000);
+    setInterval(this.interValPrint, 5000);
 
   }
 
@@ -106,9 +107,15 @@ class FileToDBManager {
   interValPrint() {
     console.log(this.numLines, '/', ++this.tick);
     if (this.lastNumLines === this.numLines) {
-      console.timeEnd(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
-      process.exit();
-    } 
+      this.misses ++;
+      console.log('no progress');
+      if (misses > 5) {
+        console.timeEnd(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
+        process.exit();
+      }
+    } else {
+      this.misses = 0;
+    }
     this.lastNumLines = this.numLines;
   }
 }

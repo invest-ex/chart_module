@@ -46,10 +46,6 @@ const client = new cassandra.Client({
 });
 
 client.execute(`
-    DROP TABLE IF EXISTS stocks;
-`);
-
-client.execute(`
     CREATE TABLE stocks ( 
         stockid text,
         averagestock float,
@@ -67,10 +63,12 @@ client.execute(`
         PRIMARY KEY (stockid, companyname)
     );
 `, () => {
-    let a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
+    let a = new FileToDBManager(writeFunc, './files/data.txt', 1, 'Cassandra');
 });
 
 let writeFunc = (data, encoding, cb) => {
-	client.execute(createQuery(data), cb);
+    
+	client.execute(createQuery(data), (err) => {err&&console.log('error is' + err); cb()});
+    
 }
 
