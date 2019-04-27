@@ -68,7 +68,6 @@ client.execute(`
 });
 
 let writeFunc = (data, encoding, cb) => {
-    
 	client.execute(createQuery(data), (err) => {err&&console.log('error is' + err); cb()});
 
 }
