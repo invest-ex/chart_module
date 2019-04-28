@@ -47,7 +47,7 @@ const client = new cassandra.Client({
 });
 
 client.execute(`
-    CREATE TABLE stocks IF NOT EXISTS ( 
+    CREATE TABLE IF NOT EXISTS stocks  ( 
         stockid text,
         averagestock float,
         changepercent float,
@@ -62,9 +62,9 @@ client.execute(`
         week list<float>,
         year list<float>,
         PRIMARY KEY (stockid, companyname)
-    );
+    ) ;
 `, () => {
-    let a = new FileToDBManager(writeFunc, './files/data.txt', 1, 'Cassandra');
+    let a = new FileToDBManager(writeFunc, './files/data.txt', 32, 'Cassandra');
 });
 
 let writeFunc = (data, encoding, cb) => {

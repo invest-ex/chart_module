@@ -109,7 +109,7 @@ class FileToDBManager {
     if (this.lastNumLines === this.numLines) {
       this.misses ++;
       console.log('no progress');
-      if (misses > 5) {
+      if (this.misses > 5) {
         console.timeEnd(`${this.dBName} write ${this.streams} streams, batched: ${this.batchedQueries}`);
         process.exit();
       }
