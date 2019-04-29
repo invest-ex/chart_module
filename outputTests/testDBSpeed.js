@@ -1,5 +1,15 @@
 const cassandra = require('cassandra-driver');
 const BbPromise = require('bluebird');
+const redis = require('redis');
+
+
+const clientR = redis.createClient();
+
+clientR.get = BbPromise.promisify(clientR.get);
+
+clientR.on('error', (err) => {
+	console.log('error', +err);
+});
 
 const clientC = new cassandra.Client({ 
   contactPoints: ['localhost'], 
@@ -7,7 +17,6 @@ const clientC = new cassandra.Client({
   localDataCenter: 'datacenter1' ,
   promiseFactory: BbPromise.fromCallback
 });
-
 
 function genRandTicker() {
 	letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
@@ -28,10 +37,10 @@ function makeQuery(){
 
 class RealisticQueryMaker {
 	constructor() {
-    this.topCompanies = new Array(10).fill(0).map(()=>genRandTicker());
-    this.commonCompanies = new Array(100).fill(0).map(()=>genRandTicker());
-    this.occasionalCompanies = new Array(1000).fill(0).map(()=>genRandTicker());
-    this.rareCompanies = new Array(1000000).fill(0).map(()=>genRandTicker());
+    this.topCompanies = new Array(10).fill(0).map(()=>this.genRandTicker());
+    this.commonCompanies = new Array(100).fill(0).map(()=>this.genRandTicker());
+    this.occasionalCompanies = new Array(1000).fill(0).map(()=>this.genRandTicker());
+    this.rareCompanies = new Array(1000000).fill(0).map(()=>this.genRandTicker());
 	}
 
   getDistributedTicker(){
@@ -52,21 +61,21 @@ class RealisticQueryMaker {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  makeQuery() {
-    let a = `SELECT * FROM stocks WHERE stockid='${this.getDistributedTicker()}' LIMIT 1;`;
+  makeQuery(arg) {
+    let a = `SELECT * FROM stocks WHERE stockid='${arg || this.getDistributedTicker()}' LIMIT 1;`;
     return a
   }
 
 
 
 	genRandTicker() {
-		letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
+		const letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
 			"I", "J", "K", "L", "M", "N", "O", "P", "Q", 
 			"R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 		let val = Math.floor(Math.random()*1000000);
 		let a = new Array(5).fill(0);
 		return a.map(() => {
-	      letter = this.letters[val % 26];
+	      let letter = letters[val % 26];
 	      val = Math.floor(val / 26);
 	      return letter;
 	    }).join('');
@@ -74,31 +83,38 @@ class RealisticQueryMaker {
 }
 
 let queryMaker = new RealisticQueryMaker();
-
-function execC(){
-	return clientC.execute(makeQuery());
+let hit = 0;
+function execR(){
+	const ticker = queryMaker.getDistributedTicker();
+	return clientR.get(ticker)
+		.then((res) => {
+			if (res) {hit++;return JSON.parse(res);}
+			return clientC.execute(queryMaker.makeQuery(ticker))
+				.then((res) => {
+					clientR.set(ticker, JSON.stringify(res));
+					return res;
+				})
+		});
 }
 
-function execP() {
-	return clientP.query(queryMaker.makeQuery());
+function execC() {
+	return clientC.execute(queryMaker.makeQuery());
 }
 
-let times = 10000;
-let cThreads = 1;
+let times = 10;
+let cThreads = 32;
 let pThreads = 1;
-let threads = new Array(cThreads).fill(0).map(() => execC());
-let promise = execC();
+let threads = new Array(cThreads).fill(0).map(() => execR());
+// let promise = execR();
 console.time(`Cassandra ${times} requests, ${cThreads} promise chains`);
 for (let i = 0; i < times; i += threads.length) {
-  promise = promise.then(execC);
-	threads = threads.map((val) => val.then((val) => {return execC();}));
+	threads = threads.map((val) => val.then((val) => {return execR();}));
 }
-threads[0]
-	.then(() => console.log('--------------'))
 
 Promise.all(threads)
 	.then(() => console.timeEnd(`Cassandra ${times} requests, ${cThreads} promise chains`))
 	.then(() => {
+		console.log(hit, ' is redis hits');
 		// threads = new Array(pThreads).fill(0).map(() => execP());
 		// console.time(`Postgress ${times} requests, ${pThreads} promise chains`);
 		// for (var i = 0; i < times; i += threads.length) {
