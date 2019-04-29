@@ -34,7 +34,6 @@ function getData(stockid) {
 					year: res.year,
 					fiveYear: res.fiveyear
 				};
-				console.log(res.fiveyear);
 
 				accept([stockObj]);
 			});
