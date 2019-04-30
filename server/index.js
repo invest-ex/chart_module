@@ -20,8 +20,13 @@ app.listen(port, () => {
 })
 
 app.get('/api/chart/:stockId', (req, res) => {
-  getTicker(req.params.stockId+ 'A').then((val) => res.end(JSON.stringify(val)));
-  console.log('Got a request searching for', req.params.stockId.toUpperCase());
+  console.log('something');
+
+  let extendedId = req.params.stockId;
+  while (extendedId.length < 5) {
+    extendedId += 'A';
+  }
+  getTicker(extendedId).then((val) => res.end(JSON.stringify(val)));
   // Stocks.find({stockId: req.params.stockId.toUpperCase()}, (err, data) => {
   //   if (err) {
   //     console.log(err.message);

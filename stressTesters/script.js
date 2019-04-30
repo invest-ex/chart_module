@@ -15,7 +15,7 @@ class RealisticQueryMaker {
 
   getDistributedTicker() {
     let roll = Math.random();
-    if (roll < 4) {
+    if (roll < 1) {
       return this.randomChoice(this.topCompanies);
     } else if (roll < 0.75) {
       return this.randomChoice(this.commonCompanies);
@@ -70,10 +70,15 @@ export const options = {
 };
 
 export default function () {
-  let res = http.get(
-    `http://localhost:4000/stocks/${gen.getDistributedTicker}`
-  );
-  check(res, {
+  const ticker = gen.getDistributedTicker();
+  // let res = http.get(
+  //   `http://localhost:4000/stocks/${ticker}`
+  // );
+  // check(res, {
+  //   "is status 200": (r) => r.status === 200
+  // });
+  let res2 = http.get(`http://localhost:4000/api/chart/${ticker}`);
+  check(res2, {
     "is status 200": (r) => r.status === 200
   });
 }
