@@ -8,7 +8,7 @@ const Stocks = require('../database/StockChart.js');
 const getTicker = require('../database/CassDB.js');
 
 const app = express();
-const port = 4000;
+const port = 80;
 
 app.use(cors());
 app.use(bodyParser.json());

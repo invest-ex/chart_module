@@ -9,7 +9,7 @@ clientR.get = BbPromise.promisify(clientR.get);
 clientR.mget = BbPromise.promisify(clientR.mget);
 
 clientR.on('error', (err) => {
-	console.log('error', +err);
+	console.log('redis error', +err);
 });
 
 const client = new cassandra.Client({ 
