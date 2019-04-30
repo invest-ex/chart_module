@@ -20,7 +20,6 @@ app.listen(port, () => {
 })
 
 app.get('/api/chart/:stockId', (req, res) => {
-  console.log('something');
 
   let extendedId = req.params.stockId;
   while (extendedId.length < 5) {

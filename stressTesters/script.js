@@ -15,7 +15,7 @@ class RealisticQueryMaker {
 
   getDistributedTicker() {
     let roll = Math.random();
-    if (roll < 1) {
+    if (roll < 0.5) {
       return this.randomChoice(this.topCompanies);
     } else if (roll < 0.75) {
       return this.randomChoice(this.commonCompanies);
