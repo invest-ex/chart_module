@@ -45,7 +45,7 @@ function formatDBObj(dbObj) {
 function getData(stockid) {
   return clientR.get(stockid)
     .then((res) => {
-      if (false) {return formatDBObj(JSON.parse(res))};
+      if (res) {return formatDBObj(JSON.parse(res))};
       return client.execute(`
         SELECT * FROM stocks
         WHERE stockid='${stockid}';
