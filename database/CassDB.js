@@ -46,10 +46,14 @@ function formatDBObj(dbObj) {
 		};
     return [stockObj];
 }
+let hits = 0;
+let total = 0;
+setInterval(()=>console.log(hits,'/',total), 5000);
 function getData(stockid) {
+  total++;
   return clientR.get(stockid)
     .then((res) => {
-      if (res) {return formatDBObj(JSON.parse(res))}
+      if (res) {hits++;return formatDBObj(JSON.parse(res))}
       return client.execute(`
         SELECT * FROM stocks
         WHERE stockid='${stockid}';

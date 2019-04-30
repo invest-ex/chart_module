@@ -9,20 +9,18 @@ class RealisticQueryMaker {
       .fill(0).map(() => this.genRandTicker());
     this.occasionalCompanies = new Array(1000)
       .fill(0).map(() => this.genRandTicker());
-    this.rareCompanies = new Array(100000)
-      .fill(0).map(() => this.genRandTicker());
   }
 
   getDistributedTicker() {
     let roll = Math.random();
-    if (roll < 2) {
+    if (roll < 0.5) {
       return this.randomChoice(this.topCompanies);
     } else if (roll < 0.75) {
       return this.randomChoice(this.commonCompanies);
     } else if (roll < 0.95) {
       return this.randomChoice(this.occasionalCompanies);
     } else {
-      return this.randomChoice(this.rareCompanies);
+      return this.genRandTicker();
     }
 
   }

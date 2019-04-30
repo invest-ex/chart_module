@@ -26,7 +26,7 @@ export default function () {
   // check(res, {
   //   "is status 200": (r) => r.status === 200
   // });
-  let res2 = http.get(`http://localhost:4000/api/chart/${ticker}`);
+  let res2 = http.get(`http://localhost:80/api/chart/${ticker}`);
   check(res2, {
     "is status 200": (r) => r.status === 200
   });
