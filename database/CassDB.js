@@ -6,6 +6,7 @@ const redis = require('redis');
 const clientR = redis.createClient();
 
 clientR.get = BbPromise.promisify(clientR.get);
+clientR.mget = BbPromise.promisify(clientR.mget);
 
 clientR.on('error', (err) => {
 	console.log('error', +err);
@@ -21,6 +22,9 @@ const client = new cassandra.Client({
 
 function formatDBObj(dbObj) {
 	const res = dbObj.rows[0];
+    if (!res) {
+      return {};
+    }
 		let stockObj = {
 			stockId: res.stockid,
 			averageStock: res.averagestock,
@@ -45,7 +49,7 @@ function formatDBObj(dbObj) {
 function getData(stockid) {
   return clientR.get(stockid)
     .then((res) => {
-      if (res) {return formatDBObj(JSON.parse(res))};
+      if (res) {return formatDBObj(JSON.parse(res))}
       return client.execute(`
         SELECT * FROM stocks
         WHERE stockid='${stockid}';
