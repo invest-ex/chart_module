@@ -48,7 +48,6 @@ function formatDBObj(dbObj) {
 }
 let hits = 0;
 let total = 0;
-setInterval(()=>console.log(hits,'/',total), 5000);
 function getData(stockid) {
   total++;
   return clientR.get(stockid)
