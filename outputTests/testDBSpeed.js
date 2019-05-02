@@ -7,12 +7,13 @@ const clientR = redis.createClient();
 
 clientR.get = BbPromise.promisify(clientR.get);
 
+let errCount = 0;
 clientR.on('error', (err) => {
-	console.log('error', +err);
+	// console.log('error', +err);
 });
 
 const clientC = new cassandra.Client({ 
-  contactPoints: ['localhost'], 
+  contactPoints: ['18.224.141.175'], 
   keyspace: 'investex',
   localDataCenter: 'datacenter1' ,
   promiseFactory: BbPromise.fromCallback
@@ -104,11 +105,11 @@ function execC() {
 let times = 10;
 let cThreads = 32;
 let pThreads = 1;
-let threads = new Array(cThreads).fill(0).map(() => execR());
+let threads = new Array(cThreads).fill(0).map(() => execC());
 // let promise = execR();
 console.time(`Cassandra ${times} requests, ${cThreads} promise chains`);
 for (let i = 0; i < times; i += threads.length) {
-	threads = threads.map((val) => val.then((val) => {return execR();}));
+	threads = threads.map((val) => val.then((val) => {return execC();}));
 }
 
 Promise.all(threads)
