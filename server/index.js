@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
-const relic = require('newrelic');
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const Stocks = require('../database/StockChart.js');
 const getTicker = require('../database/CassDB.js');
 
 const app = express();

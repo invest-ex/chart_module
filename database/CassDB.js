@@ -13,7 +13,7 @@ clientR.on('error', (err) => {
 });
 
 const client = new cassandra.Client({ 
-  contactPoints: ['localhost'], 
+  contactPoints: ['18.223.212.187'], 
   keyspace: 'investex',
   localDataCenter: 'datacenter1', 
   consistencyLevel: 'ONE',
