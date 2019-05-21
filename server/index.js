@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
+const r = require('newrelic');
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const getTicker = require('../database/CassDB.js');
-const r = require('newrelic');
 const app = express();
 const port = 80;
 
