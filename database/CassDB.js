@@ -12,10 +12,10 @@ clientR.on('error', (err) => {
 	console.log('redis error', +err);
 });
 
-const client = new cassandra.Client({ 
-  contactPoints: ['localhost'], 
+const client = new cassandra.Client({
+  contactPoints: ['3.18.253.220'],
   keyspace: 'investex',
-  localDataCenter: 'datacenter1', 
+  localDataCenter: 'datacenter1',
   consistencyLevel: 'ONE',
   promiseFactory: BbPromise.fromCallback
 });
