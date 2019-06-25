@@ -1,7 +1,8 @@
 const cassandra = require('cassandra-driver');
 const BbPromise = require('bluebird');
 const redis = require('redis');
-
+const mongo = require('mongodb');
+const RealisticQueryMaker = require('./distributedTicker');
 
 const clientR = redis.createClient();
 
@@ -13,11 +14,20 @@ clientR.on('error', (err) => {
 });
 
 const clientC = new cassandra.Client({ 
-  contactPoints: ['18.224.141.175'], 
+  contactPoints: ['127.0.0.1:9042'], 
   keyspace: 'investex',
   localDataCenter: 'datacenter1' ,
   promiseFactory: BbPromise.fromCallback
 });
+
+const url = 'mongodb://localhost:27017';
+let collection;
+
+mongo.MongoClient.connect(url, { useNewUrlParser: true }, (err, client) => {
+    console.log('connected');
+    collection = client.db('investex').collection('stocks');
+});
+
 
 function genRandTicker() {
 	letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
@@ -34,53 +44,6 @@ function genRandTicker() {
 
 function makeQuery(){
 	return `SELECT * FROM stocks WHERE stockid='${genRandTicker()}' LIMIT 1;`;
-}
-
-class RealisticQueryMaker {
-	constructor() {
-    this.topCompanies = new Array(10).fill(0).map(()=>this.genRandTicker());
-    this.commonCompanies = new Array(100).fill(0).map(()=>this.genRandTicker());
-    this.occasionalCompanies = new Array(1000).fill(0).map(()=>this.genRandTicker());
-    this.rareCompanies = new Array(1000000).fill(0).map(()=>this.genRandTicker());
-	}
-
-  getDistributedTicker(){
-    let roll = Math.random();
-    if (roll < 0.5) {
-      return this.randomChoice(this.topCompanies);
-    } else if (roll < 0.75) {
-      return this.randomChoice(this.commonCompanies);
-    } else if (roll < 0.95) {
-      return this.randomChoice(this.occasionalCompanies);
-    } else {
-      return this.randomChoice(this.rareCompanies);
-    }
-
-  }
-
-  randomChoice(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  makeQuery(arg) {
-    let a = `SELECT * FROM stocks WHERE stockid='${arg || this.getDistributedTicker()}' LIMIT 1;`;
-    return a
-  }
-
-
-
-	genRandTicker() {
-		const letters = ["A", "B", "C", "D", "E", "F", "G", "H", 
-			"I", "J", "K", "L", "M", "N", "O", "P", "Q", 
-			"R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-		let val = Math.floor(Math.random()*1000000);
-		let a = new Array(5).fill(0);
-		return a.map(() => {
-	      let letter = letters[val % 26];
-	      val = Math.floor(val / 26);
-	      return letter;
-	    }).join('');
-	}
 }
 
 let queryMaker = new RealisticQueryMaker();
@@ -102,9 +65,15 @@ function execC() {
 	return clientC.execute(queryMaker.makeQuery());
 }
 
-let times = 10;
-let cThreads = 32;
-let pThreads = 1;
+function unpromisedExecM(cb) {
+	return collection.find({stockId: queryMaker.getDistributedTicker()}).toArray(cb);
+}
+
+const execM = BbPromise.promisify(unpromisedExecM);
+
+let times = 100000;
+let cThreads = 64;
+let mThreads = 64;
 let threads = new Array(cThreads).fill(0).map(() => execC());
 // let promise = execR();
 console.time(`Cassandra ${times} requests, ${cThreads} promise chains`);
@@ -116,14 +85,17 @@ Promise.all(threads)
 	.then(() => console.timeEnd(`Cassandra ${times} requests, ${cThreads} promise chains`))
 	.then(() => {
 		console.log(hit, ' is redis hits');
-		// threads = new Array(pThreads).fill(0).map(() => execP());
-		// console.time(`Postgress ${times} requests, ${pThreads} promise chains`);
-		// for (var i = 0; i < times; i += threads.length) {
-		// 	threads = threads.map((val) => val.then(execP));
-		// }
-		// return Promise.all(threads);
+		threads = new Array(mThreads).fill(0).map(() => execM());
+		console.time(`Mongo ${times} requests, ${mThreads} promise chains`);
+		for (var i = 0; i < times; i += threads.length) {
+			threads = threads.map((val) => val.then(() => execM() ));
+		}
+		return Promise.all(threads);
 	})
 	// .then(() => console.timeEnd(`Postgress ${times} requests, ${pThreads} promise chains`))
-	.then(() => process.exit());
+	.then(() => {
+		console.timeEnd(`Mongo ${times} requests, ${mThreads} promise chains`);
+		process.exit()
+	});
 
 
