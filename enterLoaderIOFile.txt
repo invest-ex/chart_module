@@ -1,0 +1,6 @@
+cd public
+cd dist
+touch $1.txt
+echo $1 > $1.txt
+
+sh add.sh loaderio-0a3fe48db27ee1c32406480765b73b16s
