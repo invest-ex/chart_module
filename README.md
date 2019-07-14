@@ -1,6 +1,6 @@
 # Project Name
 
-> Project description
+> Module for a chart of stock prices over time for the invest-ex webapp
 
 ## Usage
 
