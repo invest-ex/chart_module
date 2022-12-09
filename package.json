@@ -28,7 +28,7 @@
     "body-parser": "^1.18.3",
     "cassandra-driver": "^4.1.0",
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "faker": "^4.1.0",
     "jest-environment-node": "^24.5.0",
     "jest-to-match-shape-of": "^1.2.0",
